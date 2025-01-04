@@ -11,7 +11,6 @@ using RCLAPI.Services;
 using RCLProdutos.Services.Interfaces;
 using System.Net.NetworkInformation;
 using System.Xml.Linq;
-using Xamarin.Essentials;
 
 namespace RCLProdutos.Shared.Slider;
 

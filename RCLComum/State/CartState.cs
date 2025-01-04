@@ -6,9 +6,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using RCLAPI.DTO;
 using RCLAPI.Services;
-using RCLComum.State;
 
-namespace RCLCOMUM.State;
+namespace RCLComum.State;
 
 public class CartState{
     public List<ItensEncomendados> Items { get; private set; } = new();

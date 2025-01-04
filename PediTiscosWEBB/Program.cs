@@ -1,4 +1,4 @@
-using PediTiscosWEB.Components;
+using PediTiscosWEBB.Components;
 
 using RCLProdutos.Services;
 using RCLProdutos.Services.Interfaces;
