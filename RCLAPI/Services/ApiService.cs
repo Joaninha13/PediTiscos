@@ -522,18 +522,18 @@ public class ApiService : IApiServices
 
 
     // ****************** Utilizadores ********************
-    public async Task<ApiResponse<bool>> RegistarUtilizador(Utilizador novoUtilizador)
-    {
+    public async Task<ApiResponse<bool>> RegistarUtilizador(Utilizador novoUtilizador){
         try
         {
+            string endpoint = "api/Utilizadores/RegistarUser";
+
             var json = JsonSerializer.Serialize(novoUtilizador, _serializerOptions);
 
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            var response = await PostRequest("api/Utilizadores/RegistarUser", content);
+            var response = await PostRequest($"{AppConfig.BaseUrl}{endpoint}", content);
 
-            if (!response.IsSuccessStatusCode)
-            {
+            if (!response.IsSuccessStatusCode){
                 _logger.LogError($"Erro ao enviar requisitos Http: {response.StatusCode}");
                 return new ApiResponse<bool>
                 {
@@ -549,7 +549,7 @@ public class ApiService : IApiServices
             return new ApiResponse<bool> { ErrorMessage = ex.Message };
         }
     }
-    public async Task<ApiResponse<bool>> Login(LoginModel login){
+    public async Task<Token> Login(LoginModel login){
         try
         {
             string endpoint = "api/Utilizadores/LoginUser";
@@ -567,8 +567,8 @@ public class ApiService : IApiServices
             }
             var jsonResult = await response.Content.ReadAsStringAsync();
             var result = JsonSerializer.Deserialize<Token>(jsonResult, _serializerOptions);
-     
-            return new ApiResponse<bool> { Data = true };
+
+            return result;
         }
         catch (Exception ex)
         {

@@ -41,6 +41,6 @@ public interface IApiServices{
 
     //User
     public Task<ApiResponse<bool>> RegistarUtilizador(Utilizador novoUtilizador);
-    public Task<ApiResponse<bool>> Login(LoginModel login);
+    public Task<Token> Login(LoginModel login);
 
 }

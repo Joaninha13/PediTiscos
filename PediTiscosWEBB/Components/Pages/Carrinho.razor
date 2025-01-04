@@ -1,6 +1,16 @@
 ﻿@page "/carrinho"
 
-<h3>Carrinho na Web</h3>
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.EntityFrameworkCore
+@using RCLAPI.DTO
+@using RCLAPI.Services
+@using RCLComum.State
+
+@inject UserSessionState UserSession
+@inject CartState CartState
+
+@inject NavigationManager NavigationManager
+
 
 @code {
 

@@ -1,5 +1,8 @@
 ﻿
 @using RCLAPI
+@using RCLComum.State
+
+@inject UserSessionState UserSession
 
 <div class="header-container">
     <div class="header-main">
@@ -10,8 +13,13 @@
             <BtnHabituais/>
             <LocationComponent />
         </div>
-         <BtnLogin/>
-         <BtnRegister/>
+            @if (UserSession.UserId == null){
+                <BtnLogin/>
+            }
+            else{
+                <BtnLogout/>
+            }
+             <BtnRegister/>
     </div>
 </div>
 

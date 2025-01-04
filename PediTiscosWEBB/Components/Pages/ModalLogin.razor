@@ -4,6 +4,9 @@
 @using Microsoft.EntityFrameworkCore
 @using RCLAPI.DTO
 @using RCLAPI.Services
+@using RCLComum.State
+
+@inject UserSessionState UserSession
 
 @inject NavigationManager NavigationManager
 <!-- The Modal -->
@@ -27,10 +30,8 @@
             class="form-control" />
             <ValidationMessage For="() => Utilizador.Password" class="text-danger" />
 
-            <button type="submit" class="btn btn-primary"><img title="Login" 
-                src="/images/login.png" style="height:30px" /></button>
-            <a href="/" type="button" class="btn btn-outline-secondary">
-                <img title="Recuar" src="/images/backicon.png" style="height:30px" /></a>
+            <button type="submit" class="btn btn-primary"><img title="Login"src="/images/login.png" style="height:30px" /></button>
+            <a href="/" type="button" class="btn btn-outline-secondary"><img title="Recuar" src="/images/backicon.png" style="height:30px" /></a>
         </EditForm>
     </div>
 </div>
@@ -47,15 +48,30 @@
         if (estado == "block")
             estado = "none";
         else estado = "block";
-                
+
         NavigationManager.NavigateTo("/");
     }
 
     // To protect from overposting attacks, see https://aka.ms/RazorPagesCRUD
     public async Task LoginUser(){
-        try
-        {
+        try{
+
             var result = await _apiServices.Login(Utilizador);
+
+
+            if(result == null){
+                Console.WriteLine("ERRO LOGIN");
+                return;
+            }
+            else{
+               UserSession.UserId = result.utilizadorid;
+               UserSession.Token = result.accesstoken;
+               UserSession.UserName = result.utilizadornome;
+            }
+
+
+           Console.WriteLine($"LOGIN USER: {UserSession.UserId}");
+
         }
         catch (DbUpdateConcurrencyException)
         {

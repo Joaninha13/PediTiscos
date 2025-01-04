@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
 using Microsoft.AspNetCore.Components;
 using RCLAPI.DTO;
 using RCLAPI.Services;
@@ -17,36 +13,46 @@ public class CartState{
     [Inject]
     public UserSessionState? _userSessionState { get; set; }
 
+    [Inject]
+    public NavigationManager NavigationManager { get; set; }
+
 
     public event Action? OnChange;
 
-    //public CartState(Task<List<Encomendas>> idEncomenda) {
-    //    Encomendas Encomenda = _apiServices.AdicionarEncomenda(_userSessionState.UserId);
+    public CartState(){
 
-    //    foreach (var item in idEncomenda)
-    //    {
-    //        if(item.Estado.equals)
-    //        Items = _apiServices.GetCarrinhoComprasAsync(item.Id);
-    //    }
+        if (_userSessionState.UserId == null){
+            NavigationManager.NavigateTo("/modalogin");
+            return;
+        }
 
-    //    Items = _apiServices.GetCarrinhoComprasAsync(idEncomenda.);
-    //}
+        var idEncomenda = _apiServices.AdicionarEncomenda(_userSessionState.UserId);
+
+        Items = _apiServices.GetCarrinhoComprasAsync(idEncomenda.Result.Id).Result;
+
+    }
 
     // Adiciona um item ao carrinho
     public void AddItem(ItensEncomendados item){
-        Items.Add(item);
+
+
+
         NotifyStateChanged();
     }
 
     // Remove um item do carrinho
     public void RemoveItem(int produtoId){
-        Items.RemoveAll(i => i.ProdutoId == produtoId);
+
+
+
         NotifyStateChanged();
     }
 
     // Limpa o carrinho
     public void ClearCart(){
-        Items.Clear();
+
+
+
         NotifyStateChanged();
     }
 

@@ -3,89 +3,88 @@ using RCLAPI.DTO;
 using RCLAPI.Services;
 using RCLProdutos.Services.Interfaces;
 
-namespace RCLProdutos.Shared.Cards
+namespace RCLProdutos.Shared.Cards;
+
+public partial class CardsCarousel
 {
-    public partial class CardsCarousel
+
+    [Parameter]
+    public int SelectedId { get; set; }
+
+    [Parameter]
+    public int catSel { get; set; }
+
+    [Inject]
+    public IApiServices _apiServices { get; set; }
+
+    [Inject]
+    public ICardsUtilsServices cardsUtilsServices { get; set; }
+
+    private List<Categorias>? categorias { get; set; } = new List<Categorias>();
+
+    private bool IsDisabledNext { get; set; } = false;
+    private bool IsDisbledPrevious { get; set; } = false;
+
+    private int SelectCategoria;
+
+    private int enviaCat;
+
+    protected override async Task OnInitializedAsync()
     {
+        enviaCat = catSel;
 
-        [Parameter]
-        public int SelectedId { get; set; }
+        catSel = 0;
 
-        [Parameter]
-        public int catSel { get; set; }
+        SelectCategoria = SelectedId;
 
-        [Inject]
-        public IApiServices _apiServices { get; set; }
+        categorias = await _apiServices.GetCategorias();
 
-        [Inject]
-        public ICardsUtilsServices cardsUtilsServices { get; set; }
+        await LoadMarginsLeft();
 
-        private List<Categorias>? categorias { get; set; } = new List<Categorias>();
+        int qtdProd = categorias.Count;
 
-        private bool IsDisabledNext { get; set; } = false;
-        private bool IsDisbledPrevious { get; set; } = false;
+        cardsUtilsServices.OnChange += StateHasChanged;
 
-        private int SelectCategoria;
+    }
 
-        private int enviaCat;
-
-        protected override async Task OnInitializedAsync()
+    async Task LoadMarginsLeft()
+    {
+        foreach (var categoria in categorias)
         {
-            enviaCat = catSel;
-
-            catSel = 0;
-
-            SelectCategoria = SelectedId;
-
-            categorias = await _apiServices.GetCategorias();
-
-            await LoadMarginsLeft();
-
-            int qtdProd = categorias.Count;
-
-            cardsUtilsServices.OnChange += StateHasChanged;
-
+            cardsUtilsServices.MarginLeftSlide.Add("margin-left:0%");
         }
+    }
 
-        async Task LoadMarginsLeft()
+    void PreviousCard()
+    {
+        if (cardsUtilsServices.CountSlide != 0)
         {
-            foreach (var categoria in categorias)
-            {
-                cardsUtilsServices.MarginLeftSlide.Add("margin-left:0%");
-            }
+            cardsUtilsServices.MarginLeftSlide[cardsUtilsServices.CountSlide - 1] = "margin-left:0%";
+            cardsUtilsServices.CountSlide--;
+            IsDisabledNext = false;
+            IsDisbledPrevious = false;
         }
-
-        void PreviousCard()
+        else
         {
-            if (cardsUtilsServices.CountSlide != 0)
-            {
-                cardsUtilsServices.MarginLeftSlide[cardsUtilsServices.CountSlide - 1] = "margin-left:0%";
-                cardsUtilsServices.CountSlide--;
-                IsDisabledNext = false;
-                IsDisbledPrevious = false;
-            }
-            else
-            {
-                cardsUtilsServices.MarginLeftSlide[0] = "margin-lef:0%";
-                IsDisbledPrevious = true;
-            }
-            cardsUtilsServices.Index = cardsUtilsServices.CountSlide;
+            cardsUtilsServices.MarginLeftSlide[0] = "margin-lef:0%";
+            IsDisbledPrevious = true;
         }
+        cardsUtilsServices.Index = cardsUtilsServices.CountSlide;
+    }
 
-        void NextCard()
+    void NextCard()
+    {
+        cardsUtilsServices.CountSlide++;
+        cardsUtilsServices.Index = cardsUtilsServices.CountSlide;
+        if (cardsUtilsServices.CountSlide < cardsUtilsServices.MarginLeftSlide.Count)
         {
-            cardsUtilsServices.CountSlide++;
-            cardsUtilsServices.Index = cardsUtilsServices.CountSlide;
-            if (cardsUtilsServices.CountSlide < cardsUtilsServices.MarginLeftSlide.Count)
-            {
-                cardsUtilsServices.MarginLeftSlide[cardsUtilsServices.CountSlide - 1] = $"margin-left:-7%";
-                IsDisabledNext = false;
-                IsDisbledPrevious = false;
-            }
-            else
-            {
-                IsDisabledNext = true;
-            }
+            cardsUtilsServices.MarginLeftSlide[cardsUtilsServices.CountSlide - 1] = $"margin-left:-7%";
+            IsDisabledNext = false;
+            IsDisbledPrevious = false;
+        }
+        else
+        {
+            IsDisabledNext = true;
         }
     }
 }

@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RCLAPI", "RCLAPI\RCLAPI.csp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RCLProdutos", "RCLProdutos\RCLProdutos.csproj", "{1BCAD016-C5EF-4DDD-ACE3-98B6137B5E66}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PediTiscosWEBB", "PediTiscosWEBB\PediTiscosWEBB.csproj", "{9CA5C7C0-3C08-479B-A11C-60446B319C37}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PediTiscosWEBB", "PediTiscosWEBB\PediTiscosWEBB.csproj", "{9CA5C7C0-3C08-479B-A11C-60446B319C37}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

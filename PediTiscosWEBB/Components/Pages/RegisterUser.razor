@@ -9,10 +9,13 @@
 
 <PageTitle>Criar Registo de Utilizador</PageTitle>
 
-<h1>Criar Registo de Utilizador WEB</h1>
+<!-- The Modal -->
+<div id="myModal" class="modal" style="display:@estado">
+    <!-- Modal content -->
+    <div class="modal-content">
+        <h1>Registo de Utilizador</h1>
+        <span class="close" @onclick="Modal">&times;</span>
 
-<h4>Utilizador</h4>
-<hr />
         <EditForm method="post" Model="Utilizador" OnValidSubmit="AddUser" 
             enctype="multipart/form-data" FormName="create" Enhance>
             <DataAnnotationsValidator />
@@ -40,16 +43,25 @@
                 <InputNumber id="nif" @bind-Value="Utilizador.NIF" class="form-control" />
                 <ValidationMessage For="() => Utilizador.NIF" class="text-danger" />
                               
-            <button type="submit" class="btn btn-primary"><img title="Registar" 
-                src="/images/register.png" style="height:30px" /></button>
-            <a href="/" type="button" class="btn btn-outline-secondary"><img title="Recuar" 
-                src="/images/backicon.png" style="height:30px" /></a>      
+            <button type="submit" class="btn btn-primary"><img title="Registar" src="/images/register.png" style="height:30px" /></button>
+            <a href="/" type="button" class="btn btn-outline-secondary"><img title="Recuar" src="/images/backicon.png" style="height:30px" /></a>      
         </EditForm>
+    </div>
+</div>
 @code {      
     [SupplyParameterFromForm]
     public Utilizador Utilizador { get; set; } = new();
     [Inject]
     public IApiServices? _apiServices { get; set; }
+    private string estado = "block";
+
+    private void Modal(){
+        if (estado == "block")
+            estado = "none";
+        else estado = "block";
+
+        NavigationManager.NavigateTo("/");
+    }
 
     // To protect from overposting attacks, see https://aka.ms/RazorPagesCRUD
     public async Task AddUser()
