@@ -23,11 +23,11 @@ public class ApiService : IApiServices
 
     JsonSerializerOptions _serializerOptions;
 
-    private List<Produto> produtos;
+    private List<Produtos> produtos;
 
-    private List<Categoria> categorias;
+    private List<Categorias> categorias;
 
-    private List<SubCategoria> subCategorias;
+    private List<SubCategorias> subCategorias;
 
     private List<Encomendas> encomendas;
 
@@ -35,7 +35,7 @@ public class ApiService : IApiServices
 
     private List<Favoritos> favoritos;
 
-    private Produto _detalhesProduto;
+    private Produtos _detalhesProduto;
     
     public ApiService(ILogger<ApiService> logger, IHttpContextAccessor httpContextAccessor){
         _httpContextAccessor = httpContextAccessor;
@@ -45,10 +45,10 @@ public class ApiService : IApiServices
         {
             PropertyNameCaseInsensitive = true
         };
-        _detalhesProduto = new Produto();
-        categorias = new List<Categoria>();
-        subCategorias = new List<SubCategoria>();
-        produtos = new List<Produto>();
+        _detalhesProduto = new Produtos();
+        categorias = new List<Categorias>();
+        subCategorias = new List<SubCategorias>();
+        produtos = new List<Produtos>();
         encomendas = new List<Encomendas>();
         itensEncomendados = new List<ItensEncomendados>();
         favoritos = new List<Favoritos>();
@@ -63,7 +63,7 @@ public class ApiService : IApiServices
     //}
 
     // ********************* Categorias  **********
-    public async Task<List<Categoria>> GetCategorias(){
+    public async Task<List<Categorias>> GetCategorias(){
         string endpoint = $"api/Categorias";
 
         try
@@ -75,7 +75,7 @@ public class ApiService : IApiServices
                 string content = "";
 
                 content = await httpResponseMessage.Content.ReadAsStringAsync();
-                categorias = JsonSerializer.Deserialize<List<Categoria>>(content, _serializerOptions)!;
+                categorias = JsonSerializer.Deserialize<List<Categorias>>(content, _serializerOptions)!;
             }
             else
                 _logger.LogError($"Erro ao buscar categorias: {httpResponseMessage.ReasonPhrase}");
@@ -90,7 +90,7 @@ public class ApiService : IApiServices
     }
 
     // ********************* SubCategorias  **********
-    public async Task<List<SubCategoria>> GetSubCategorias(){
+    public async Task<List<SubCategorias>> GetSubCategorias(){
         string endpoint = "api/SubCategorias";
 
         try{
@@ -98,7 +98,7 @@ public class ApiService : IApiServices
 
             if (httpResponseMessage.IsSuccessStatusCode){
                 string content = await httpResponseMessage.Content.ReadAsStringAsync();
-                subCategorias = JsonSerializer.Deserialize<List<SubCategoria>>(content, _serializerOptions)!;
+                subCategorias = JsonSerializer.Deserialize<List<SubCategorias>>(content, _serializerOptions)!;
             }
             else
                 _logger.LogError($"Erro ao buscar subcategorias: {httpResponseMessage.ReasonPhrase}");
@@ -112,7 +112,7 @@ public class ApiService : IApiServices
         return subCategorias;
     }
 
-    public async Task<List<SubCategoria>> GetSubCategoriasPorCategoria(int categoriaId){
+    public async Task<List<SubCategorias>> GetSubCategoriasPorCategoria(int categoriaId){
         string endpoint = $"api/SubCategorias/categoria/{categoriaId}";
 
         try
@@ -122,7 +122,7 @@ public class ApiService : IApiServices
             if (httpResponseMessage.IsSuccessStatusCode)
             {
                 string content = await httpResponseMessage.Content.ReadAsStringAsync();
-                subCategorias = JsonSerializer.Deserialize<List<SubCategoria>>(content, _serializerOptions)!;
+                subCategorias = JsonSerializer.Deserialize<List<SubCategorias>>(content, _serializerOptions)!;
             }
             else
             {
@@ -139,8 +139,7 @@ public class ApiService : IApiServices
     }
 
     // ********************* Produtos  **********
-    public async Task<List<Produto>> GetAllProdutos()
-    {
+    public async Task<List<Produtos>> GetAllProdutos(){
         string endpoint = "api/Produtos";
 
         try
@@ -150,7 +149,7 @@ public class ApiService : IApiServices
             if (httpResponseMessage.IsSuccessStatusCode)
             {
                 string content = await httpResponseMessage.Content.ReadAsStringAsync();
-                produtos = JsonSerializer.Deserialize<List<Produto>>(content, _serializerOptions)!;
+                produtos = JsonSerializer.Deserialize<List<Produtos>>(content, _serializerOptions)!;
             }
             else
             {
@@ -167,7 +166,7 @@ public class ApiService : IApiServices
     }
 
     // Obtém produtos por categoria
-    public async Task<List<Produto>> GetProdutosPorCategoria(int categoriaId)
+    public async Task<List<Produtos>> GetProdutosPorCategoria(int categoriaId)
     {
         string endpoint = $"api/Produtos/categoria/{categoriaId}";
 
@@ -178,7 +177,7 @@ public class ApiService : IApiServices
             if (httpResponseMessage.IsSuccessStatusCode)
             {
                 string content = await httpResponseMessage.Content.ReadAsStringAsync();
-                produtos = JsonSerializer.Deserialize<List<Produto>>(content, _serializerOptions)!;
+                produtos = JsonSerializer.Deserialize<List<Produtos>>(content, _serializerOptions)!;
             }
             else
             {
@@ -195,7 +194,7 @@ public class ApiService : IApiServices
     }
 
     // Obtém produtos por subcategoria
-    public async Task<List<Produto>> GetProdutosPorSubCategoria(int subCategoriaId)
+    public async Task<List<Produtos>> GetProdutosPorSubCategoria(int subCategoriaId)
     {
         string endpoint = $"api/Produtos/subcategoria/{subCategoriaId}";
 
@@ -206,7 +205,7 @@ public class ApiService : IApiServices
             if (httpResponseMessage.IsSuccessStatusCode)
             {
                 string content = await httpResponseMessage.Content.ReadAsStringAsync();
-                produtos = JsonSerializer.Deserialize<List<Produto>>(content, _serializerOptions)!;
+                produtos = JsonSerializer.Deserialize<List<Produtos>>(content, _serializerOptions)!;
             }
             else
             {
@@ -223,7 +222,7 @@ public class ApiService : IApiServices
     }
 
     // Obtém produtos em promoção
-    public async Task<List<Produto>> GetProdutosEmPromocao()
+    public async Task<List<Produtos>> GetProdutosEmPromocao()
     {
         string endpoint = "api/Produtos/empromocao";
 
@@ -234,7 +233,7 @@ public class ApiService : IApiServices
             if (httpResponseMessage.IsSuccessStatusCode)
             {
                 string content = await httpResponseMessage.Content.ReadAsStringAsync();
-                produtos = JsonSerializer.Deserialize<List<Produto>>(content, _serializerOptions)!;
+                produtos = JsonSerializer.Deserialize<List<Produtos>>(content, _serializerOptions)!;
             }
             else
             {
@@ -251,7 +250,7 @@ public class ApiService : IApiServices
     }
 
     // Obtém os produtos com mais vendas
-    public async Task<List<Produto>> GetProdutosPorComMaisVendas()
+    public async Task<List<Produtos>> GetProdutosPorComMaisVendas()
     {
         string endpoint = "api/Produtos/maisvendidos";
 
@@ -262,7 +261,7 @@ public class ApiService : IApiServices
             if (httpResponseMessage.IsSuccessStatusCode)
             {
                 string content = await httpResponseMessage.Content.ReadAsStringAsync();
-                produtos = JsonSerializer.Deserialize<List<Produto>>(content, _serializerOptions)!;
+                produtos = JsonSerializer.Deserialize<List<Produtos>>(content, _serializerOptions)!;
             }
             else
             {
@@ -279,7 +278,7 @@ public class ApiService : IApiServices
     }
 
     // Obtém os detalhes de um produto específico
-    public async Task<Produto> GetProdutoDetails(int id)
+    public async Task<Produtos> GetProdutoDetails(int id)
     {
         string endpoint = $"api/Produtos/{id}";
 
@@ -290,7 +289,7 @@ public class ApiService : IApiServices
             if (httpResponseMessage.IsSuccessStatusCode)
             {
                 string content = await httpResponseMessage.Content.ReadAsStringAsync();
-                _detalhesProduto = JsonSerializer.Deserialize<Produto>(content, _serializerOptions)!;
+                _detalhesProduto = JsonSerializer.Deserialize<Produtos>(content, _serializerOptions)!;
             }
             else
             {

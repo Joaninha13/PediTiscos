@@ -24,17 +24,16 @@ namespace RCLProdutos.Shared.Slider
        
         [Inject]
         public ISliderUtilsServices sliderUtilsService { get; set; }
-        private List<Produto>? produtos { get; set; }
+        private List<Produtos>? produtos { get; set; } = new List<Produtos>();
         private List<Favoritos>? userFavoritos { get; set; }
 
-        public Produto sugestaoProduto = new Produto();
+        public Produtos sugestaoProduto = new Produtos();
         private int witdthPerc { get; set; } = 0;
         private bool IsDisabledNext { get; set; } = false;
         private bool IsDisbledPrevious { get; set; } = false;
 
         public static int? actualProd=0;
-        protected override async Task OnInitializedAsync()
-        {
+        protected override async Task OnInitializedAsync(){
             int? categoriasenviadaID;
             string? produtosEspecificos;
 

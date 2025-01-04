@@ -9,11 +9,11 @@ namespace RCLProdutos.Shared.CardProduto;
 public partial class SlideProdutoComponent
 {
     [Parameter]
-    public Produto sugestProduto { get; set; }
+    public Produtos sugestProduto { get; set; }
     private string? pathurlimg { get; set; }
 
     public  bool _entra = false;
-    public Produto recebe = new Produto();
+    public Produtos recebe = new Produtos();
     private int sugestId;
     protected override async Task OnInitializedAsync()
     {

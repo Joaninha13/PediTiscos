@@ -21,7 +21,7 @@ public partial class SlideComponent
     public int prodSugereId { get; set; }
     
     [Parameter]
-    public Produto? produto { get; set; } = new Produto();
+    public Produtos? produto { get; set; } = new Produtos();
 
     [Parameter]
     public float? width { get; set; }
@@ -31,8 +31,7 @@ public partial class SlideComponent
 
     [Inject]
     public IApiServices? _apiServices { get; set; }
-    [Inject]
-    public NavigationManager? NavigationManager { get; set; } //mudar
+ 
     public int countSlide { get; set; } = 0;
 
     public Favoritos? favorito { get; set; } = new Favoritos();
@@ -53,7 +52,7 @@ public partial class SlideComponent
         //if (!produto.favorito)
         //    favoritoicon = $"images/heart.png";
         //else
-        //    favoritoicon = $"images/heartfilltransp.png";
+            favoritoicon = $"images/heartfilltransp.png";
 
     }
 

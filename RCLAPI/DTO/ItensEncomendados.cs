@@ -6,7 +6,7 @@ public class ItensEncomendados{
     public int? EncomendaId { get; set; }
     public Encomendas Encomenda { get; set; }
     public int? ProdutoId { get; set; }
-    public Produto Produto { get; set; }
+    public Produtos Produto { get; set; }
     public int? Quantidade { get; set; }
 
 }

@@ -5,12 +5,12 @@ namespace RCLAPI.Services;
 public interface IApiServices{
 
     //Produtos
-    public Task<List<Produto>> GetAllProdutos();
-    public Task<List<Produto>> GetProdutosPorCategoria(int categoriaId);
-    public Task<List<Produto>> GetProdutosPorSubCategoria(int subCategoriaId);
-    public Task<List<Produto>> GetProdutosEmPromocao();
-    public Task<List<Produto>> GetProdutosPorComMaisVendas();
-    public Task<Produto> GetProdutoDetails(int id);
+    public Task<List<Produtos>> GetAllProdutos();
+    public Task<List<Produtos>> GetProdutosPorCategoria(int categoriaId);
+    public Task<List<Produtos>> GetProdutosPorSubCategoria(int subCategoriaId);
+    public Task<List<Produtos>> GetProdutosEmPromocao();
+    public Task<List<Produtos>> GetProdutosPorComMaisVendas();
+    public Task<Produtos> GetProdutoDetails(int id);
 
     //Encomenda
     public Task<List<Encomendas>> GetEncomendas(string utilizadorId);
@@ -25,12 +25,12 @@ public interface IApiServices{
 
 
     //Categorias
-    public Task<List<Categoria>> GetCategorias();
+    public Task<List<Categorias>> GetCategorias();
 
 
     //subCategorias
-    public Task<List<SubCategoria>> GetSubCategorias();
-    public Task<List<SubCategoria>> GetSubCategoriasPorCategoria(int categoriaId);
+    public Task<List<SubCategorias>> GetSubCategorias();
+    public Task<List<SubCategorias>> GetSubCategoriasPorCategoria(int categoriaId);
 
 
     //Favoritos

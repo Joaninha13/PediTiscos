@@ -3,8 +3,7 @@ using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace RCLAPI.DTO;
-public class Categoria
-{
+public class Categorias{
     public int Id { get; set; }
 
     public string? Nome { get; set; }
@@ -16,4 +15,5 @@ public class Categoria
 
     [NotMapped]
     public IFormFile? ImageFile { get; set; }
+
 }

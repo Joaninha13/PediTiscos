@@ -7,7 +7,9 @@ using System.Threading.Tasks;
 namespace RCLAPI;
 public static class AppConfig
 {
-    public static readonly string BaseUrl = "https://zrwlr21l-7004.uks1.devtunnels.ms/";
+    //public static readonly string BaseUrl = "https://bxhct6mz-7004.uks1.devtunnels.ms/";
+
+    public static readonly string BaseUrl = "https://rfl15msk-7004.uks1.devtunnels.ms/";
 
     public static readonly string tituloHomePage = "PediTiscos";
 

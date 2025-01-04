@@ -1,6 +1,6 @@
 ﻿namespace RCLAPI.DTO;
 
-public class Promocoe{
+public class Promocoes{
 
     public int Id { get; set; }
 

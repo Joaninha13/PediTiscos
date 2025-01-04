@@ -3,7 +3,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace RCLAPI.DTO;
 
-public class Produto{
+public class Produtos{
+
     public int Id { get; set; }
 
     public string? Nome { get; set; }
@@ -19,18 +20,19 @@ public class Produto{
     public bool Disponivel { get; set; }
 
     public int? SubCategoriaId { get; set; }
-    public SubCategoria SubCategoria { get; set; }
+    public SubCategorias SubCategoria { get; set; }
 
     public int? ModoDispoId { get; set; }
     public ModoDispo ModoDispo { get; set; }
 
     public int? PromocoesId { get; set; }
-    public Promocoe? Promocoes { get; set; }
+    public Promocoes? Promocoes { get; set; }
 
     public string? UrlImagem { get; set; }
     public byte[]? Imagem { get; set; }
 
     [NotMapped]
     public IFormFile? ImageFile { get; set; }
+
 
 }

@@ -1,8 +1,8 @@
-﻿@using RCLProdutos.Shared.Slider
+﻿@page "/slider"
+
+@using RCLProdutos.Shared.Slider
 @using RCLProdutos.Shared.Cards
 @using RCLProdutos.Shared.CardProduto
-
-@page "/slider"
 
 <section class="slider">
     <div class="slider-container" style="width:@(witdthPerc)%">
@@ -14,8 +14,7 @@
         }
         else
         {
-            @foreach (var produto in produtos)
-            {             
+            @foreach (var produto in produtos){             
                 <SlideComponent produto="@produto" width="@sliderUtilsService.WidthSlide2" marginLeft="@(sliderUtilsService.MarginLeftSlide[produtos.IndexOf(produto)])" />
             }
             <IndicadoresComponent Produtos="@produtos" />
@@ -25,8 +24,7 @@
     </div>
 </section>
 
- @if(Id > 0)
- {
+ @if(Id > 0){
     <CardsCarousel catSel ="Id"/>
  }
 

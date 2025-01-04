@@ -20,7 +20,7 @@ namespace RCLProdutos.Shared.Cards
         [Inject]
         public ICardsUtilsServices cardsUtilsServices { get; set; }
 
-        private List<Categoria>? categorias { get; set; }
+        private List<Categorias>? categorias { get; set; } = new List<Categorias>();
 
         private bool IsDisabledNext { get; set; } = false;
         private bool IsDisbledPrevious { get; set; } = false;

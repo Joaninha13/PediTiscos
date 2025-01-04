@@ -7,7 +7,7 @@ namespace RCLProdutos.Shared.Cards;
 public partial class CardComponent
 {
     [Parameter]
-    public Categoria? categoria { get; set; }
+    public Categorias? categoria { get; set; }
 
     [Parameter]
     public int? selectedCatId { get; set; }    
@@ -22,7 +22,7 @@ public partial class CardComponent
         selectedCategoriaId = selectedCatId;
     }
 
-    private void Navega(Categoria categoria)
+    private void Navega(Categorias categoria)
     {
         NavigationManager.NavigateTo($"slider?Id={categoria.Id}&nomeCat={categoria.Nome}");
     }

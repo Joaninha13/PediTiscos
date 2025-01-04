@@ -24,7 +24,7 @@ builder.Services.AddScoped<IApiServices, ApiService>();
 builder.Services.AddSingleton<CartState>();
 builder.Services.AddSingleton<UserSessionState>();
 
-//builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:7213") }); //NECESSARIO????
+builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:7213") }); //NECESSARIO????
 
 var app = builder.Build();
 
