@@ -1,0 +1,681 @@
+﻿using Microsoft.Extensions.Logging;
+using System.Net;
+using System.Net.Http.Headers;
+using System.Text;
+using System.Text.Json;
+
+using RCLAPI.DTO;
+using System;
+using System.Net.Http;
+using Microsoft.AspNetCore.Http;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Data.Entity.Core.Objects;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System.Net.NetworkInformation;
+
+namespace RCLAPI.Services;
+public class ApiService : IApiServices
+{
+    private readonly ILogger<ApiService> _logger;
+    private readonly HttpClient _httpClient = new();
+
+    private readonly IHttpContextAccessor _httpContextAccessor;
+
+    JsonSerializerOptions _serializerOptions;
+
+    private List<Produto> produtos;
+
+    private List<Categoria> categorias;
+
+    private List<SubCategoria> subCategorias;
+
+    private List<Encomendas> encomendas;
+
+    private List<ItensEncomendados> itensEncomendados;
+
+    private List<Favoritos> favoritos;
+
+    private Produto _detalhesProduto;
+    
+    public ApiService(ILogger<ApiService> logger, IHttpContextAccessor httpContextAccessor){
+        _httpContextAccessor = httpContextAccessor;
+
+        _logger = logger;
+        _serializerOptions = new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        };
+        _detalhesProduto = new Produto();
+        categorias = new List<Categoria>();
+        subCategorias = new List<SubCategoria>();
+        produtos = new List<Produto>();
+        encomendas = new List<Encomendas>();
+        itensEncomendados = new List<ItensEncomendados>();
+        favoritos = new List<Favoritos>();
+    }
+    //private void AddAuthorizationHeader()
+    //{
+    //    if (!string.IsNullOrEmpty(token))
+    //    {
+    //        _httpClient.DefaultRequestHeaders.Authorization =
+    //        new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+    //    }
+    //}
+
+    // ********************* Categorias  **********
+    public async Task<List<Categoria>> GetCategorias(){
+        string endpoint = $"api/Categorias";
+
+        try
+        {
+            HttpResponseMessage httpResponseMessage = 
+                await _httpClient.GetAsync($"{AppConfig.BaseUrl}{endpoint}");
+
+            if (httpResponseMessage.IsSuccessStatusCode){
+                string content = "";
+
+                content = await httpResponseMessage.Content.ReadAsStringAsync();
+                categorias = JsonSerializer.Deserialize<List<Categoria>>(content, _serializerOptions)!;
+            }
+            else
+                _logger.LogError($"Erro ao buscar categorias: {httpResponseMessage.ReasonPhrase}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            return null;
+        }
+
+        return categorias;
+    }
+
+    // ********************* SubCategorias  **********
+    public async Task<List<SubCategoria>> GetSubCategorias(){
+        string endpoint = "api/SubCategorias";
+
+        try{
+            HttpResponseMessage httpResponseMessage = await _httpClient.GetAsync($"{AppConfig.BaseUrl}{endpoint}");
+
+            if (httpResponseMessage.IsSuccessStatusCode){
+                string content = await httpResponseMessage.Content.ReadAsStringAsync();
+                subCategorias = JsonSerializer.Deserialize<List<SubCategoria>>(content, _serializerOptions)!;
+            }
+            else
+                _logger.LogError($"Erro ao buscar subcategorias: {httpResponseMessage.ReasonPhrase}");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Erro ao buscar subcategorias: {ex.Message}");
+            return null;
+        }
+
+        return subCategorias;
+    }
+
+    public async Task<List<SubCategoria>> GetSubCategoriasPorCategoria(int categoriaId){
+        string endpoint = $"api/SubCategorias/categoria/{categoriaId}";
+
+        try
+        {
+            HttpResponseMessage httpResponseMessage = await _httpClient.GetAsync($"{AppConfig.BaseUrl}{endpoint}");
+
+            if (httpResponseMessage.IsSuccessStatusCode)
+            {
+                string content = await httpResponseMessage.Content.ReadAsStringAsync();
+                subCategorias = JsonSerializer.Deserialize<List<SubCategoria>>(content, _serializerOptions)!;
+            }
+            else
+            {
+                _logger.LogError($"Erro ao buscar subcategorias por categoria: {httpResponseMessage.ReasonPhrase}");
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Erro ao buscar subcategorias por categoria: {ex.Message}");
+            return null;
+        }
+
+        return subCategorias;
+    }
+
+    // ********************* Produtos  **********
+    public async Task<List<Produto>> GetAllProdutos()
+    {
+        string endpoint = "api/Produtos";
+
+        try
+        {
+            HttpResponseMessage httpResponseMessage = await _httpClient.GetAsync($"{AppConfig.BaseUrl}{endpoint}");
+
+            if (httpResponseMessage.IsSuccessStatusCode)
+            {
+                string content = await httpResponseMessage.Content.ReadAsStringAsync();
+                produtos = JsonSerializer.Deserialize<List<Produto>>(content, _serializerOptions)!;
+            }
+            else
+            {
+                _logger.LogError($"Erro ao buscar todos os produtos: {httpResponseMessage.ReasonPhrase}");
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Erro ao buscar todos os produtos: {ex.Message}");
+            return null;
+        }
+
+        return produtos;
+    }
+
+    // Obtém produtos por categoria
+    public async Task<List<Produto>> GetProdutosPorCategoria(int categoriaId)
+    {
+        string endpoint = $"api/Produtos/categoria/{categoriaId}";
+
+        try
+        {
+            HttpResponseMessage httpResponseMessage = await _httpClient.GetAsync($"{AppConfig.BaseUrl}{endpoint}");
+
+            if (httpResponseMessage.IsSuccessStatusCode)
+            {
+                string content = await httpResponseMessage.Content.ReadAsStringAsync();
+                produtos = JsonSerializer.Deserialize<List<Produto>>(content, _serializerOptions)!;
+            }
+            else
+            {
+                _logger.LogError($"Erro ao buscar produtos por categoria: {httpResponseMessage.ReasonPhrase}");
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Erro ao buscar produtos por categoria: {ex.Message}");
+            return null;
+        }
+
+        return produtos;
+    }
+
+    // Obtém produtos por subcategoria
+    public async Task<List<Produto>> GetProdutosPorSubCategoria(int subCategoriaId)
+    {
+        string endpoint = $"api/Produtos/subcategoria/{subCategoriaId}";
+
+        try
+        {
+            HttpResponseMessage httpResponseMessage = await _httpClient.GetAsync($"{AppConfig.BaseUrl}{endpoint}");
+
+            if (httpResponseMessage.IsSuccessStatusCode)
+            {
+                string content = await httpResponseMessage.Content.ReadAsStringAsync();
+                produtos = JsonSerializer.Deserialize<List<Produto>>(content, _serializerOptions)!;
+            }
+            else
+            {
+                _logger.LogError($"Erro ao buscar produtos por subcategoria: {httpResponseMessage.ReasonPhrase}");
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Erro ao buscar produtos por subcategoria: {ex.Message}");
+            return null;
+        }
+
+        return produtos;
+    }
+
+    // Obtém produtos em promoção
+    public async Task<List<Produto>> GetProdutosEmPromocao()
+    {
+        string endpoint = "api/Produtos/empromocao";
+
+        try
+        {
+            HttpResponseMessage httpResponseMessage = await _httpClient.GetAsync($"{AppConfig.BaseUrl}{endpoint}");
+
+            if (httpResponseMessage.IsSuccessStatusCode)
+            {
+                string content = await httpResponseMessage.Content.ReadAsStringAsync();
+                produtos = JsonSerializer.Deserialize<List<Produto>>(content, _serializerOptions)!;
+            }
+            else
+            {
+                _logger.LogError($"Erro ao buscar produtos em promoção: {httpResponseMessage.ReasonPhrase}");
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Erro ao buscar produtos em promoção: {ex.Message}");
+            return null;
+        }
+
+        return produtos;
+    }
+
+    // Obtém os produtos com mais vendas
+    public async Task<List<Produto>> GetProdutosPorComMaisVendas()
+    {
+        string endpoint = "api/Produtos/maisvendidos";
+
+        try
+        {
+            HttpResponseMessage httpResponseMessage = await _httpClient.GetAsync($"{AppConfig.BaseUrl}{endpoint}");
+
+            if (httpResponseMessage.IsSuccessStatusCode)
+            {
+                string content = await httpResponseMessage.Content.ReadAsStringAsync();
+                produtos = JsonSerializer.Deserialize<List<Produto>>(content, _serializerOptions)!;
+            }
+            else
+            {
+                _logger.LogError($"Erro ao buscar produtos mais vendidos: {httpResponseMessage.ReasonPhrase}");
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Erro ao buscar produtos mais vendidos: {ex.Message}");
+            return null;
+        }
+
+        return produtos;
+    }
+
+    // Obtém os detalhes de um produto específico
+    public async Task<Produto> GetProdutoDetails(int id)
+    {
+        string endpoint = $"api/Produtos/{id}";
+
+        try
+        {
+            HttpResponseMessage httpResponseMessage = await _httpClient.GetAsync($"{AppConfig.BaseUrl}{endpoint}");
+
+            if (httpResponseMessage.IsSuccessStatusCode)
+            {
+                string content = await httpResponseMessage.Content.ReadAsStringAsync();
+                _detalhesProduto = JsonSerializer.Deserialize<Produto>(content, _serializerOptions)!;
+            }
+            else
+            {
+                _logger.LogError($"Erro ao buscar detalhes do produto: {httpResponseMessage.ReasonPhrase}");
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Erro ao buscar detalhes do produto: {ex.Message}");
+            return null!;
+        }
+
+        return _detalhesProduto;
+    }
+
+
+    // ***************** Compras ******************
+    public async Task<List<ItensEncomendados>> GetCarrinhoComprasAsync(int encomendaId){
+        string endpoint = $"api/ItensEncomendados/{encomendaId}";
+
+        try
+        {
+            HttpResponseMessage httpResponseMessage = await _httpClient.GetAsync($"{AppConfig.BaseUrl}{endpoint}");
+
+            if (httpResponseMessage.IsSuccessStatusCode)
+            {
+                string content = await httpResponseMessage.Content.ReadAsStringAsync();
+                itensEncomendados = JsonSerializer.Deserialize<List<ItensEncomendados>>(content, _serializerOptions)!;
+            }
+            else
+            {
+                _logger.LogError($"Erro ao buscar itens do carrinho: {httpResponseMessage.ReasonPhrase}");
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Erro ao buscar itens do carrinho: {ex.Message}");
+            return null;
+        }
+
+        return itensEncomendados;
+    }
+
+    public async Task<(bool Data, string? ErrorMessage)> AdicionarProdutoCarrinho(int encomendaId, int produtoId, int quantidade)
+    {
+        string endpoint = $"api/ItensEncomendados?encomendaId={encomendaId}&produtoId={produtoId}&quantidade={quantidade}";
+
+        try
+        {
+            HttpResponseMessage httpResponseMessage = await _httpClient.PostAsync($"{AppConfig.BaseUrl}{endpoint}", null);
+
+            if (httpResponseMessage.IsSuccessStatusCode)
+            {
+                return (true, null);
+            }
+            else
+            {
+                string errorMessage = $"Erro ao adicionar produto ao carrinho: {httpResponseMessage.ReasonPhrase}";
+                _logger.LogError(errorMessage);
+                return (false, errorMessage);
+            }
+        }
+        catch (Exception ex)
+        {
+            string errorMessage = $"Erro inesperado ao adicionar produto ao carrinho: {ex.Message}";
+            _logger.LogError(errorMessage);
+            return (false, errorMessage);
+        }
+    }
+
+    public async Task<(bool Data, string? ErrorMessage)> RemoverProdutoCarrinho(int id){
+        string endpoint = $"api/ItensEncomendados/{id}";
+
+        try{
+            HttpResponseMessage httpResponseMessage = await _httpClient.DeleteAsync($"{AppConfig.BaseUrl}{endpoint}");
+
+            if (httpResponseMessage.IsSuccessStatusCode)
+            {
+                return (true, null);
+            }
+            else
+            {
+                string errorMessage = $"Erro ao remover produto do carrinho: {httpResponseMessage.ReasonPhrase}";
+                _logger.LogError(errorMessage);
+                return (false, errorMessage);
+            }
+        }
+        catch (Exception ex)
+        {
+            string errorMessage = $"Erro inesperado ao remover produto do carrinho: {ex.Message}";
+            _logger.LogError(errorMessage);
+            return (false, errorMessage);
+        }
+    }
+
+    public async Task<(bool Data, string? ErrorMessage)> AtualizarQuantidadeProdutoCarrinho(int encomendaId, int produtoId, int quantidade)
+    {
+        string endpoint = $"api/ItensEncomendados?encomendaId={encomendaId}&produtoId={produtoId}&quantidade={quantidade}";
+
+        try
+        {
+            var content = new StringContent("", Encoding.UTF8, "application/json");
+            HttpResponseMessage httpResponseMessage = await _httpClient.PutAsync($"{AppConfig.BaseUrl}{endpoint}", content);
+
+            if (httpResponseMessage.IsSuccessStatusCode)
+            {
+                return (true, null);
+            }
+            else
+            {
+                string errorMessage = $"Erro ao atualizar quantidade do produto no carrinho: {httpResponseMessage.ReasonPhrase}";
+                _logger.LogError(errorMessage);
+                return (false, errorMessage);
+            }
+        }
+        catch (Exception ex)
+        {
+            string errorMessage = $"Erro inesperado ao atualizar quantidade do produto no carrinho: {ex.Message}";
+            _logger.LogError(errorMessage);
+            return (false, errorMessage);
+        }
+    }
+
+    //public async Task<ApiResponse<bool>> AdicionaItemNoCarrinho(ItemCarrinhoCompra carrinhoCompra)
+    //{
+    //    try
+    //    {
+    //        var json = JsonSerializer.Serialize(carrinhoCompra, _serializerOptions);
+    //        var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+    //        var response = await PostRequest("api/ItensCarrinhoCompra", content);
+
+    //        if (!response.IsSuccessStatusCode)
+    //        {
+    //            _logger.LogError($"Erro ao enviar requisição HTTP: {response.StatusCode}");
+    //            return new ApiResponse<bool>
+    //            {
+    //                ErrorMessage = $"Erro ao enviar requisição HTTP: {response.StatusCode}"
+    //            };
+    //        }
+    //        return new ApiResponse<bool> { Data = true };
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        _logger.LogError($"Erro ao adicionar item no carrinho de compras: {ex.Message}");
+    //        return new ApiResponse<bool> { ErrorMessage = ex.Message };
+    //    }
+    //}
+
+    // ****************** Encomendas ********************
+    public async Task<List<Encomendas>> GetEncomendas(string utilizadorId)
+    {
+        string endpoint = $"api/Encomendas/{utilizadorId}"; // Endpoint ajustado conforme a necessidade de buscar encomendas do utilizador
+
+        try
+        {
+            HttpResponseMessage httpResponseMessage = await _httpClient.GetAsync($"{AppConfig.BaseUrl}{endpoint}");
+
+            if (httpResponseMessage.IsSuccessStatusCode)
+            {
+                string content = await httpResponseMessage.Content.ReadAsStringAsync();
+                encomendas = JsonSerializer.Deserialize<List<Encomendas>>(content, _serializerOptions)!;
+            }
+            else
+            {
+                _logger.LogError($"Erro ao buscar encomendas: {httpResponseMessage.ReasonPhrase}");
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Erro ao buscar encomendas: {ex.Message}");
+            return null;
+        }
+
+        return encomendas;
+    }
+
+    public async Task<Encomendas> AdicionarEncomenda(string utilizadorId)
+    {
+        string endpoint = $"api/Encomendas/{utilizadorId}";
+
+        try
+        {
+            HttpResponseMessage httpResponseMessage = await _httpClient.PostAsync($"{AppConfig.BaseUrl}{endpoint}", null);
+
+            if (httpResponseMessage.IsSuccessStatusCode){
+                string content = await httpResponseMessage.Content.ReadAsStringAsync();
+                return JsonSerializer.Deserialize<Encomendas>(content, _serializerOptions)!;
+            }
+            else
+            {
+                _logger.LogError($"Erro ao adicionar encomenda: {httpResponseMessage.ReasonPhrase}");
+                return null!;
+            }
+        }
+        catch (Exception ex)
+        {
+            string errorMessage = $"Erro inesperado ao adicionar encomenda: {ex.Message}";
+            _logger.LogError(errorMessage);
+            return null;
+        }
+    }
+
+    public async Task<(bool Data, string? ErrorMessage)> EncomendarEncomenda(string utilizadorId)
+    {
+        string endpoint = $"api/Encomendas/{utilizadorId}";
+
+        try
+        {
+            HttpResponseMessage httpResponseMessage = await _httpClient.PutAsync($"{AppConfig.BaseUrl}{endpoint}", null);
+
+            if (httpResponseMessage.IsSuccessStatusCode)
+            {
+                return (true, null);
+            }
+            else
+            {
+                string errorMessage = $"Erro ao confirmar encomenda: {httpResponseMessage.ReasonPhrase}";
+                _logger.LogError(errorMessage);
+                return (false, errorMessage);
+            }
+        }
+        catch (Exception ex)
+        {
+            string errorMessage = $"Erro inesperado ao confirmar encomenda: {ex.Message}";
+            _logger.LogError(errorMessage);
+            return (false, errorMessage);
+        }
+    }
+
+
+    // ****************** Utilizadores ********************
+    public async Task<ApiResponse<bool>> RegistarUtilizador(Utilizador novoUtilizador)
+    {
+        try
+        {
+            var json = JsonSerializer.Serialize(novoUtilizador, _serializerOptions);
+
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            var response = await PostRequest("api/Utilizadores/RegistarUser", content);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogError($"Erro ao enviar requisitos Http: {response.StatusCode}");
+                return new ApiResponse<bool>
+                {
+                    ErrorMessage = $"Erro ao enviar requisição HTTP: {response.StatusCode}"
+                };
+            }
+
+            return new ApiResponse<bool> { Data = true };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Erro ao registar o utiizador: {ex.Message}");
+            return new ApiResponse<bool> { ErrorMessage = ex.Message };
+        }
+    }
+    public async Task<ApiResponse<bool>> Login(LoginModel login){
+        try
+        {
+            string endpoint = "api/Utilizadores/LoginUser";
+
+            var json = JsonSerializer.Serialize(login, _serializerOptions);
+
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            var response = await PostRequest($"{AppConfig.BaseUrl}{endpoint}", content);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogError($"Erro ao enviar requisição Http: {response.StatusCode}");
+
+            }
+            var jsonResult = await response.Content.ReadAsStringAsync();
+            var result = JsonSerializer.Deserialize<Token>(jsonResult, _serializerOptions);
+     
+            return new ApiResponse<bool> { Data = true };
+        }
+        catch (Exception ex)
+        {
+            string errorMessage = $"Erro inesperado: {ex.Message}";
+            _logger.LogError(ex.Message);
+            return (default);
+        }
+
+    }
+    private async Task<HttpResponseMessage> PostRequest(string enderecoURL, HttpContent content){
+        try
+        {
+            var result = await _httpClient.PostAsync(enderecoURL, content);
+            return result;
+        }
+        catch (Exception ex)
+        {
+            // Log o erro ou trata conforme necessario
+            _logger.LogError($"Erro ao enviar requisição POST para enderecoURL: {ex.Message}");
+            return new HttpResponseMessage(HttpStatusCode.BadRequest);
+        }
+    }
+
+    // *************** Gerir Favoritos ******************
+
+    public async Task<List<Favoritos>> GetFavoritos(string utilizadorId){
+        string endpoint = $"api/Favoritos/{utilizadorId}";
+
+       // AddAuthorizationHeader();
+        HttpResponseMessage response = await _httpClient.GetAsync($"{AppConfig.BaseUrl}{endpoint}");
+
+        var responseString = await response.Content.ReadAsStringAsync();
+        favoritos = JsonSerializer.Deserialize<List<Favoritos>>(responseString, _serializerOptions);
+
+        return favoritos;
+
+    }
+
+    public async Task<(bool Data, string? ErrorMessage)> AddFavorito(string utilizadorId, int produtoId)
+    {
+        string endpoint = $"api/Favoritos/{utilizadorId}/{produtoId}"; // Endpoint ajustado conforme a lógica de favoritar
+
+        try
+        {
+            HttpResponseMessage httpResponseMessage = await _httpClient.PostAsync($"{AppConfig.BaseUrl}{endpoint}", null);
+
+            if (httpResponseMessage.IsSuccessStatusCode)
+            {
+                return (true, null);
+            }
+            else
+            {
+                string errorMessage = $"Erro ao adicionar favorito: {httpResponseMessage.ReasonPhrase}";
+                _logger.LogError(errorMessage);
+                return (false, errorMessage);
+            }
+        }
+        catch (Exception ex)
+        {
+            string errorMessage = $"Erro inesperado ao adicionar favorito: {ex.Message}";
+            _logger.LogError(errorMessage);
+            return (false, errorMessage);
+        }
+    }
+
+
+    public async Task<(bool Data, string? ErrorMessage)> DeleteFavorito(int id)
+    {
+        string endpoint = $"api/Favoritos/{id}";  // Endpoint ajustado conforme a lógica de remoção
+
+        try
+        {
+            HttpResponseMessage httpResponseMessage = await _httpClient.DeleteAsync($"{AppConfig.BaseUrl}{endpoint}");
+
+            if (httpResponseMessage.IsSuccessStatusCode)
+            {
+                return (true, null);
+            }
+            else
+            {
+                string errorMessage = $"Erro ao remover favorito: {httpResponseMessage.ReasonPhrase}";
+                _logger.LogError(errorMessage);
+                return (false, errorMessage);
+            }
+        }
+        catch (Exception ex)
+        {
+            string errorMessage = $"Erro inesperado ao remover favorito: {ex.Message}";
+            _logger.LogError(errorMessage);
+            return (false, errorMessage);
+        }
+    }
+
+    //private async Task<HttpResponseMessage> FavoritosPutRequest(string uri, HttpContent content){
+    //    var enderecoUrl = AppConfig.BaseUrl + uri;
+    //    try
+    //    {
+    //       // AddAuthorizationHeader();
+    //        var result = await _httpClient.PutAsync(enderecoUrl, content);
+    //        return result;
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        _logger.LogError($"Erro ao enviar requisição PUT para {uri}: {ex.Message}");
+    //        return new HttpResponseMessage(HttpStatusCode.BadRequest);
+    //    }
+    //}
+
+}

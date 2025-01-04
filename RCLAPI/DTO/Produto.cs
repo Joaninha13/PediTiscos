@@ -1,0 +1,36 @@
+﻿using Microsoft.AspNetCore.Http;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace RCLAPI.DTO;
+
+public class Produto{
+    public int Id { get; set; }
+
+    public string? Nome { get; set; }
+
+    public string? Descricao { get; set; }
+
+    public decimal? Preco { get; set; }
+
+    public int? Stock { get; set; }
+
+    public int? NVendas { get; set; }
+
+    public bool Disponivel { get; set; }
+
+    public int? SubCategoriaId { get; set; }
+    public SubCategoria SubCategoria { get; set; }
+
+    public int? ModoDispoId { get; set; }
+    public ModoDispo ModoDispo { get; set; }
+
+    public int? PromocoesId { get; set; }
+    public Promocoe? Promocoes { get; set; }
+
+    public string? UrlImagem { get; set; }
+    public byte[]? Imagem { get; set; }
+
+    [NotMapped]
+    public IFormFile? ImageFile { get; set; }
+
+}
