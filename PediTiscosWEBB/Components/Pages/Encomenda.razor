@@ -23,6 +23,7 @@ else
                     <th>Data</th>
                     <th>Total</th>
                     <th>Pagamento</th>
+                    <th>Envio</th>
                     <th>ItensEncomendados</th>
                 </tr>
             </thead>
@@ -34,7 +35,26 @@ else
                         <td>@encomenda.Estado</td>
                         <td>@encomenda.DataEncomenda</td>
                         <td>@encomenda.Total</td>
-                        <td>@pagamentos.FirstOrDefault(x => x.EncomendaId == encomenda.Id).Estado  </td>
+                        <td>@pagamentos.FirstOrDefault(x => x.EncomendaId == encomenda.Id).Estado
+                        @if (pagamentos.FirstOrDefault(x => x.EncomendaId == encomenda.Id).Estado == "Rejeitado" && encomenda.Estado == "Confirmado")
+                            {
+
+                            <td>
+                                <button class="btn btn-warning" @onclick="() => PagarNovamente(encomenda.Id)">Voltar a pagar</button>
+                            </td>
+
+                            }
+                        </td>
+                       
+                            @if (pagamentos.FirstOrDefault(x => x.EncomendaId == encomenda.Id).Estado == "Pago"){
+                                <p>Encomenda enviada</p>
+                            }
+                            else if (pagamentos.FirstOrDefault(x => x.EncomendaId == encomenda.Id).Estado == "Rejeitado"){
+                                <p>Encomenda não enviada</p>
+                            }
+                            else{
+                                <p>Encomenda ainda não foi enviada</p>
+                            }
 
                         <td>
                             <ul>
@@ -76,5 +96,18 @@ else
             Items.Add(await _apiServices.GetCarrinhoComprasAsync(encomenda.Id));
         }
     }
+
+    private async Task PagarNovamente(int encomendaId)
+    {
+        try
+        {
+            await _apiServices.PagaAgain(encomendaId);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erro: {ex.Message}");
+        }
+    }
+
 
 }

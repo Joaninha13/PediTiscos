@@ -20,10 +20,11 @@ public interface IApiServices{
     //Pagamento
     public Task<(bool Data, string? ErrorMessage)> AdicionarPagamento(int encomendaId);
     public Task<Pagamentos> GetPagamentos(int encomendaId);
+    public Task<(bool Data, string? ErrorMessage)> PagaAgain(int encomendaId);
 
     //Carrinho de compras
     public Task<List<ItensEncomendados>> GetCarrinhoComprasAsync(int encomendaId);
-    public Task<(bool Data, string? ErrorMessage)> AdicionarProdutoCarrinho(int encomendaId, int produtoId, int quantidade);
+    public Task<(bool Data, string? ErrorMessage)> AdicionarProdutoCarrinho(int encomendaId, int produtoId, int? quantidade);
     public Task<(bool Data, string? ErrorMessage)> RemoverProdutoCarrinho(int id);
     public Task<(bool Data, string? ErrorMessage)> AtualizarQuantidadeProdutoCarrinho(int encomendaId, int produtoId, int quantidade);
 

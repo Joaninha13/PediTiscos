@@ -328,7 +328,7 @@ public class ApiService : IApiServices
         return itensEncomendados;
     }
 
-    public async Task<(bool Data, string? ErrorMessage)> AdicionarProdutoCarrinho(int encomendaId, int produtoId, int quantidade)
+    public async Task<(bool Data, string? ErrorMessage)> AdicionarProdutoCarrinho(int encomendaId, int produtoId, int? quantidade)
     {
         string endpoint = $"api/ItensEncomendados?encomendaId={encomendaId}&produtoId={produtoId}&quantidade={quantidade}";
 
@@ -684,5 +684,31 @@ public class ApiService : IApiServices
         }
 
 
+    }
+
+    public async Task<(bool Data, string? ErrorMessage)> PagaAgain(int encomendaId){
+        string endpoint = $"api/Pagamentos/{encomendaId}";
+
+        try
+        {
+            HttpResponseMessage httpResponseMessage = await _httpClient.PutAsync($"{AppConfig.BaseUrl}{endpoint}", null);
+
+            if (httpResponseMessage.IsSuccessStatusCode)
+            {
+                return (true, null);
+            }
+            else
+            {
+                string errorMessage = $"Erro ao pagar novamente: {httpResponseMessage.ReasonPhrase}";
+                _logger.LogError(errorMessage);
+                return (false, errorMessage);
+            }
+        }
+        catch (Exception ex)
+        {
+            string errorMessage = $"Erro inesperado ao pagar novamente: {ex.Message}";
+            _logger.LogError(errorMessage);
+            return (false, errorMessage);
+        }
     }
 }

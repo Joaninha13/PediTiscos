@@ -1,0 +1,85 @@
+﻿@page "/addCarrinho"
+
+@using Microsoft.EntityFrameworkCore
+@using RCLAPI.DTO
+@using RCLComum.State
+@using RCLAPI.Services
+
+@inject UserSessionState UserState
+@inject NavigationManager NavigationManager
+
+<h3>AddCarrinho</h3>
+
+<!-- The Modal -->
+<div id="myModal" class="modal" style="display:@estado">
+    <!-- Modal content -->
+    <div class="modal-content">
+        <h1>Adicionar ao Carrinho</h1>
+        <span class="close" @onclick="Modal">&times;</span>
+
+        <EditForm method="post" Model="itens" OnValidSubmit="AddItem"
+                  enctype="multipart/form-data" FormName="create" Enhance>
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" />
+
+            <div class="md-2">
+                <label for="id" class="form-label">Quantidade:</label>
+                <InputNumber id="id" @bind-Value="itens.Quantidade" class="form-control" />
+                <ValidationMessage For="() => itens.Quantidade" class="text-danger" />
+            </div>
+
+            <button type="submit" class="btn btn-primary"><img title="Save" src="/images/saveicon.png" style="height:30px" /></button>
+        </EditForm>
+
+
+
+    </div>
+</div>
+
+
+@code {
+
+    [SupplyParameterFromQuery]
+    private int Id { get; set; }
+
+    [SupplyParameterFromForm]
+    public ItensEncomendados itens { get; set; } = new();
+
+    [Inject]
+    public IApiServices? _apiServices { get; set; }
+
+    int encomendaId = 0;
+
+
+    private string estado = "block";
+
+    private void Modal()
+    {
+        if (estado == "block")
+            estado = "none";
+        else estado = "block";
+
+        NavigationManager.NavigateTo("/favoritos");
+    }
+
+    // To protect from overposting attacks, see https://aka.ms/RazorPagesCRUD
+    public async Task AddItem(){
+
+        var result = await _apiServices.AdicionarEncomenda(UserState.UserId);
+
+        encomendaId = result.Id;
+
+        try{
+           await _apiServices.AdicionarProdutoCarrinho(encomendaId, Id, itens.Quantidade);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            NavigationManager.NavigateTo("/favoritos");
+        }
+
+        NavigationManager.NavigateTo("/favoritos");
+    }
+
+
+
+}
