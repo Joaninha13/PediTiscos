@@ -1,0 +1,47 @@
+﻿@page "/modalogout"
+
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.EntityFrameworkCore
+@using RCLAPI.DTO
+@using RCLAPI.Services
+@using RCLComum.State
+
+@inject UserSessionState UserSession
+
+@inject NavigationManager NavigationManager
+
+<!-- The Modal -->
+<div id="myModal" class="modal" style="display:@estado">
+    <!-- Modal content -->
+    <div class="modal-content">
+        <h1>Logout de @UserSession.UserName</h1>
+        <span class="close" @onclick="Modal">&times;</span>
+
+        <h3>Tem acerteza que quer sair?</h3>
+
+        <button @onclick="LogoutUser" class="btn btn-primary">Sim</button>
+        <a href="/" type="button" class="btn btn-outline-secondary">Não</a>
+    </div>
+</div>
+
+
+@code {
+
+    private string estado = "block";
+
+    private void Modal()
+    {
+        if (estado == "block")
+            estado = "none";
+        else estado = "block";
+
+        NavigationManager.NavigateTo("/");
+    }
+
+    public void LogoutUser(){
+        UserSession.Logout();
+
+        NavigationManager.NavigateTo("/");
+    }
+
+}

@@ -1,0 +1,104 @@
+﻿@page "/carrinho"
+
+@using RCLAPI.DTO
+@using RCLComum.State
+@using RCLAPI.Services
+
+@inject UserSessionState UserState
+@inject NavigationManager NavigationManager
+
+
+<h3>Carrinho de Compras</h3>
+
+@if (Items.Count == 0)
+{
+    <p>O carrinho está vazio</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Imagem</th>
+                <th>Produto</th>
+                <th>Quantidade</th>
+                <th>Preço Unitario</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Items){
+                <tr>
+                    <td>
+                        @if(item.Produto.Imagem != null)
+                        {
+                            <img title="Imagem Actual: @item.Produto.UrlImagem" style="height:60px" id="imagePreview" src="data:image/*;base64,@(Convert.ToBase64String(item.Produto.Imagem))" />
+                        }
+                        else
+                        {
+                            <img title="Imagem Actual: @item.Produto.UrlImagem" style="height:60px" id="imagePreview" src="images/noproductstrans.png" />
+                        }
+                    </td>
+                    <td>@item.Produto.Nome</td>
+                    <td>@item.Quantidade</td>
+                    <td>@item.Produto.Preco</td>
+                    <td>@(item.Quantidade * item.Produto.Preco)€</td>
+                    <a title="Apagar" @onclick="() => ApagarItem(item.Id)" class="btn btn-danger"><img src="images/deleteicon.png" width="30"/></a>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div class="row">
+        <div class="col-12">
+            <h4>Total: @Items.Sum(x => x.Quantidade * x.Produto.Preco)€</h4>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <button @onclick="Finalizar" class="btn btn-primary">Encomendar e Pagar</button>
+        </div>
+    </div>
+}
+
+
+
+@code {
+
+    [Inject]
+    public IApiServices? _apiServices { get; set; }
+
+    public List<ItensEncomendados> Items { get; set; } = new List<ItensEncomendados>();
+
+    public Encomendas Encomenda { get; set; } = new Encomendas();
+
+
+    protected override async Task OnInitializedAsync(){
+
+        if (UserState == null || UserState.UserId == null){
+            NavigationManager.NavigateTo("/modalogin");
+            return;
+        }
+
+        Encomenda = await _apiServices.AdicionarEncomenda(UserState.UserId);
+
+        Items = await _apiServices.GetCarrinhoComprasAsync(Encomenda.Id);
+
+    }
+
+    public async Task ApagarItem(int id){
+        await _apiServices.RemoverProdutoCarrinho(id);
+        Items = await _apiServices.GetCarrinhoComprasAsync(Encomenda.Id);
+    }
+
+    public async Task Finalizar(){
+
+        await _apiServices.EncomendarEncomenda(UserState.UserId);
+
+        await _apiServices.AdicionarPagamento(Encomenda.Id);
+
+        NavigationManager.NavigateTo("/encomenda");
+    }
+
+}

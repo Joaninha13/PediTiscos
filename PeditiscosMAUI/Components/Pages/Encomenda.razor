@@ -1,0 +1,121 @@
+﻿@page "/encomenda"
+
+@using RCLAPI.DTO
+@using RCLComum.State
+@using RCLAPI.Services
+
+@inject UserSessionState UserState
+@inject NavigationManager NavigationManager
+
+<h3>Encomendas</h3>
+
+@if (encomendas.Count == 0)
+{
+    <p>Não tem encomendas</p>
+}
+else
+{
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Encomenda</th>
+                    <th>Estado</th>
+                    <th>Data</th>
+                    <th>Total</th>
+                    <th>Pagamento</th>
+                    <th>Envio</th>
+                    <th>ItensEncomendados</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var encomenda in encomendas)
+                {
+                    <tr>
+                        <td>@encomenda.Id</td>
+                        <td>@encomenda.Estado</td>
+                        <td>@encomenda.DataEncomenda</td>
+                        <td>@encomenda.Total</td>
+                        <td>@pagamentos.FirstOrDefault(x => x.EncomendaId == encomenda.Id).Estado
+                        @if (pagamentos.FirstOrDefault(x => x.EncomendaId == encomenda.Id).Estado == "Rejeitado" && encomenda.Estado == "Confirmado")
+                            {
+
+                            <td>
+                                <button class="btn btn-warning" @onclick="() => PagarNovamente(encomenda.Id)">Voltar a pagar</button>
+                            </td>
+
+                            }
+                        </td>
+                       
+                            @if (pagamentos.FirstOrDefault(x => x.EncomendaId == encomenda.Id).Estado == "Pago"){
+                                <p>Encomenda enviada</p>
+                            }
+                            else if (pagamentos.FirstOrDefault(x => x.EncomendaId == encomenda.Id).Estado == "Rejeitado"){
+                                <p>Encomenda não enviada</p>
+                            }
+                            else{
+                                <p>Encomenda ainda não foi enviada</p>
+                            }
+
+                        <td>
+                            <ul>
+                                @foreach (var item in Items[encomendas.IndexOf(encomenda)])
+                                {
+                                    <li>
+                                        @if(item.Produto.Imagem != null)
+                                        {
+                                            <img title="Imagem Actual: @item.Produto.UrlImagem" style="height:60px" id="imagePreview" src="data:image/*;base64,@(Convert.ToBase64String(item.Produto.Imagem))" />
+
+                                        }
+                                        else
+                                        {
+                                            <img title="Imagem Actual: @item.Produto.UrlImagem" style="height:60px" id="imagePreview" src="images/noproductstrans.png" />
+                                        }
+                                        <strong>Produto:</strong> @item.Produto.Nome <br />
+                                        <strong>Preço Total:</strong>@(item.Quantidade * item.Produto.Preco)€
+                                    </li>
+                                }
+                            </ul>
+                        </td>
+
+                    </tr>
+                }
+            </tbody>
+        </table>
+}
+
+@code {
+
+    [Inject]
+    public IApiServices? _apiServices { get; set; }
+
+    private List<Encomendas> encomendas { get; set; } = new List<Encomendas>();
+
+    private List<Pagamentos> pagamentos { get; set; } = new List<Pagamentos>();
+
+    private List<List<ItensEncomendados>> Items { get; set; } = new List<List<ItensEncomendados>>();
+
+
+    protected override async Task OnInitializedAsync(){
+        encomendas = await _apiServices.GetEncomendas(UserState.UserId);
+
+        foreach(var encomenda in encomendas){
+            pagamentos.Add(await _apiServices.GetPagamentos(encomenda.Id));
+
+            Items.Add(await _apiServices.GetCarrinhoComprasAsync(encomenda.Id));
+        }
+    }
+
+    private async Task PagarNovamente(int encomendaId)
+    {
+        try
+        {
+            await _apiServices.PagaAgain(encomendaId);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erro: {ex.Message}");
+        }
+    }
+
+
+}
