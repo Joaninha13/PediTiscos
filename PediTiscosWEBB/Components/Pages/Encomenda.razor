@@ -7,7 +7,7 @@
 @inject UserSessionState UserState
 @inject NavigationManager NavigationManager
 
-<h3>Encomenda</h3>
+<h3>Encomendas</h3>
 
 @if (encomendas.Count == 0)
 {
@@ -15,29 +15,44 @@
 }
 else
 {
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Encomenda</th>
-                <th>Estado</th>
-                <th>Data</th>
-                <th>Total</th>
-                <th>Pagamento</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var encomenda in encomendas)
-            {
+        <table class="table">
+            <thead>
                 <tr>
-                    <td>@encomenda.Id</td>
-                    <td>@encomenda.Estado</td>
-                    <td>@encomenda.DataEncomenda</td>
-                    <td>@encomenda.Total</td>
-                    <td>@pagamentos.FirstOrDefault(x => x.EncomendaId == encomenda.Id).Estado</td>
+                    <th>Encomenda</th>
+                    <th>Estado</th>
+                    <th>Data</th>
+                    <th>Total</th>
+                    <th>Pagamento</th>
+                    <th>ItensEncomendados</th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach (var encomenda in encomendas)
+                {
+                    <tr>
+                        <td>@encomenda.Id</td>
+                        <td>@encomenda.Estado</td>
+                        <td>@encomenda.DataEncomenda</td>
+                        <td>@encomenda.Total</td>
+                        <td>@pagamentos.FirstOrDefault(x => x.EncomendaId == encomenda.Id).Estado  </td>
+
+                        <td>
+                            <ul>
+                                @foreach (var item in Items[encomendas.IndexOf(encomenda)])
+                                {
+                                    <li>
+                                        <img title="Imagem Actual: @item.Produto.UrlImagem" style="height:60px" id="imagePreview" src="data:image/*;base64,@(Convert.ToBase64String(item.Produto.Imagem))" />
+                                        <strong>Produto:</strong> @item.Produto.Nome <br />
+                                        <strong>Preço Total:</strong>@(item.Quantidade * item.Produto.Preco)€
+                                    </li>
+                                }
+                            </ul>
+                        </td>
+
+                    </tr>
+                }
+            </tbody>
+        </table>
 }
 
 @code {
@@ -49,12 +64,16 @@ else
 
     private List<Pagamentos> pagamentos { get; set; } = new List<Pagamentos>();
 
+    private List<List<ItensEncomendados>> Items { get; set; } = new List<List<ItensEncomendados>>();
+
 
     protected override async Task OnInitializedAsync(){
         encomendas = await _apiServices.GetEncomendas(UserState.UserId);
 
         foreach(var encomenda in encomendas){
             pagamentos.Add(await _apiServices.GetPagamentos(encomenda.Id));
+
+            Items.Add(await _apiServices.GetCarrinhoComprasAsync(encomenda.Id));
         }
     }
 
