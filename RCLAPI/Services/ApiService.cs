@@ -1,17 +1,12 @@
 ﻿using Microsoft.Extensions.Logging;
 using System.Net;
-using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 
 using RCLAPI.DTO;
-using System;
-using System.Net.Http;
+
 using Microsoft.AspNetCore.Http;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using System.Data.Entity.Core.Objects;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using System.Net.NetworkInformation;
+
 
 namespace RCLAPI.Services;
 public class ApiService : IApiServices
@@ -413,32 +408,6 @@ public class ApiService : IApiServices
         }
     }
 
-    //public async Task<ApiResponse<bool>> AdicionaItemNoCarrinho(ItemCarrinhoCompra carrinhoCompra)
-    //{
-    //    try
-    //    {
-    //        var json = JsonSerializer.Serialize(carrinhoCompra, _serializerOptions);
-    //        var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-    //        var response = await PostRequest("api/ItensCarrinhoCompra", content);
-
-    //        if (!response.IsSuccessStatusCode)
-    //        {
-    //            _logger.LogError($"Erro ao enviar requisição HTTP: {response.StatusCode}");
-    //            return new ApiResponse<bool>
-    //            {
-    //                ErrorMessage = $"Erro ao enviar requisição HTTP: {response.StatusCode}"
-    //            };
-    //        }
-    //        return new ApiResponse<bool> { Data = true };
-    //    }
-    //    catch (Exception ex)
-    //    {
-    //        _logger.LogError($"Erro ao adicionar item no carrinho de compras: {ex.Message}");
-    //        return new ApiResponse<bool> { ErrorMessage = ex.Message };
-    //    }
-    //}
-
     // ****************** Encomendas ********************
     public async Task<List<Encomendas>> GetEncomendas(string utilizadorId)
     {
@@ -662,19 +631,58 @@ public class ApiService : IApiServices
         }
     }
 
-    //private async Task<HttpResponseMessage> FavoritosPutRequest(string uri, HttpContent content){
-    //    var enderecoUrl = AppConfig.BaseUrl + uri;
-    //    try
-    //    {
-    //       // AddAuthorizationHeader();
-    //        var result = await _httpClient.PutAsync(enderecoUrl, content);
-    //        return result;
-    //    }
-    //    catch (Exception ex)
-    //    {
-    //        _logger.LogError($"Erro ao enviar requisição PUT para {uri}: {ex.Message}");
-    //        return new HttpResponseMessage(HttpStatusCode.BadRequest);
-    //    }
-    //}
+    //Pagamento
+    public async Task<(bool Data, string? ErrorMessage)> AdicionarPagamento(int encomendaId){
 
+        string endpoint = $"api/Pagamentos/{encomendaId}";
+
+        try
+        {
+            HttpResponseMessage httpResponseMessage = await _httpClient.PostAsync($"{AppConfig.BaseUrl}{endpoint}", null);
+
+            if (httpResponseMessage.IsSuccessStatusCode){
+                return (true, null);
+            }
+            else
+            {
+                string errorMessage = $"Erro ao adicionar pagamento: {httpResponseMessage.ReasonPhrase}";
+                _logger.LogError(errorMessage);
+                return (false, errorMessage);
+            }
+        }
+        catch (Exception ex)
+        {
+            string errorMessage = $"Erro inesperado ao adicionar pagamento: {ex.Message}";
+            _logger.LogError(errorMessage);
+            return (false, errorMessage);
+        }
+    }
+
+    public async Task<Pagamentos> GetPagamentos(int encomendaId){
+
+        string endpoint = $"api/Pagamentos/{encomendaId}";
+
+        try
+        {
+            HttpResponseMessage httpResponseMessage = await _httpClient.GetAsync($"{AppConfig.BaseUrl}{endpoint}");
+
+            if (httpResponseMessage.IsSuccessStatusCode)
+            {
+                string content = await httpResponseMessage.Content.ReadAsStringAsync();
+                return JsonSerializer.Deserialize<Pagamentos>(content, _serializerOptions)!;
+            }
+            else
+            {
+                _logger.LogError($"Erro ao buscar pagamentos: {httpResponseMessage.ReasonPhrase}");
+                return null!;
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Erro ao buscar pagamentos: {ex.Message}");
+            return null!;
+        }
+
+
+    }
 }

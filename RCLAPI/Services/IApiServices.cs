@@ -17,6 +17,10 @@ public interface IApiServices{
     public Task<Encomendas> AdicionarEncomenda(string utilizadorId);
     public Task<(bool Data, string? ErrorMessage)> EncomendarEncomenda(string utilizadorId);
 
+    //Pagamento
+    public Task<(bool Data, string? ErrorMessage)> AdicionarPagamento(int encomendaId);
+    public Task<Pagamentos> GetPagamentos(int encomendaId);
+
     //Carrinho de compras
     public Task<List<ItensEncomendados>> GetCarrinhoComprasAsync(int encomendaId);
     public Task<(bool Data, string? ErrorMessage)> AdicionarProdutoCarrinho(int encomendaId, int produtoId, int quantidade);

@@ -15,11 +15,12 @@
         </div>
             @if (UserSession.UserId == null){
                 <BtnLogin/>
+                <BtnRegister />
             }
             else{
+                <a href="/encomenda">@UserSession.UserName</a>
                 <BtnLogout/>
             }
-             <BtnRegister/>
     </div>
 </div>
 

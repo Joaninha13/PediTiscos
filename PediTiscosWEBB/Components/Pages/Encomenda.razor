@@ -1,0 +1,61 @@
+﻿@page "/encomenda"
+
+@using RCLAPI.DTO
+@using RCLComum.State
+@using RCLAPI.Services
+
+@inject UserSessionState UserState
+@inject NavigationManager NavigationManager
+
+<h3>Encomenda</h3>
+
+@if (encomendas.Count == 0)
+{
+    <p>Não tem encomendas</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Encomenda</th>
+                <th>Estado</th>
+                <th>Data</th>
+                <th>Total</th>
+                <th>Pagamento</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var encomenda in encomendas)
+            {
+                <tr>
+                    <td>@encomenda.Id</td>
+                    <td>@encomenda.Estado</td>
+                    <td>@encomenda.DataEncomenda</td>
+                    <td>@encomenda.Total</td>
+                    <td>@pagamentos.FirstOrDefault(x => x.EncomendaId == encomenda.Id).Estado</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+
+    [Inject]
+    public IApiServices? _apiServices { get; set; }
+
+    private List<Encomendas> encomendas { get; set; } = new List<Encomendas>();
+
+    private List<Pagamentos> pagamentos { get; set; } = new List<Pagamentos>();
+
+
+    protected override async Task OnInitializedAsync(){
+        encomendas = await _apiServices.GetEncomendas(UserState.UserId);
+
+        foreach(var encomenda in encomendas){
+            pagamentos.Add(await _apiServices.GetPagamentos(encomenda.Id));
+        }
+    }
+
+}
